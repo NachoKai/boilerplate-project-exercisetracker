@@ -66,6 +66,15 @@ app.post("/api/exercise/new-user/", (req, res) => {
   });
 });
 
+app.get("/api/exercise/users", async (req, res) => {
+  const filter = {};
+  const allExerciseUsers = await ExerciseUser.find(filter);
+
+  res.json({
+    allExerciseUsers: allExerciseUsers,
+  });
+});
+
 const listener = app.listen(port, () => {
   console.log("Your app is listening on port " + port);
 });
