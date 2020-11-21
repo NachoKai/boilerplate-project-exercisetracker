@@ -79,17 +79,16 @@ app.post("/api/exercise/new-user", (req, res) => {
 });
 
 app.get("/api/exercise/users", async (req, res) => {
-  const filter = {};
-  const allUsers = await NewUser.find(filter);
-  res.json(allUsers);
+  res.json(await NewUser.find({}));
 });
 
-app.post("/api/exercise/add", (req, res) => {
+app.post("/api/exercise/add", async (req, res) => {
   const { userId, description, duration, date } = req.body;
-  console.log(req.body);
+  const allUsers = await NewUser.find({});
+
   const newExercise = new NewExercise({
     _id: userId,
-    // username: NewUser.find(user => user.id === id).username,
+    username: await allUsers.find(user => user._id === userId).username,
     description,
     duration,
     date: date === "" ? new Date() : new Date(date),
@@ -99,7 +98,7 @@ app.post("/api/exercise/add", (req, res) => {
     if (err) return console.error(err);
     res.json({
       _id: newExercise._id,
-      // username: newExercise.username,
+      username: newExercise.username,
       description: newExercise.description,
       duration: newExercise.duration,
       date: newExercise.date,
