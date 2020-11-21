@@ -3,14 +3,22 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const shortId = require("shortid");
 const port = process.env.PORT || 3000;
 const app = express();
-const { Schema } = mongoose;
 
 mongoose.connect(process.env.DB_URI || "mongodb://localhost/exercise-track", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+const ExerciseUser = mongoose.model(
+  "ExerciseUser",
+  new mongoose.Schema({
+    _id: String,
+    username: String,
+  })
+);
 
 app.use(cors());
 
@@ -42,8 +50,19 @@ app.use((err, req, res, next) => {
 });
 
 app.post("/api/exercise/new-user/", (req, res) => {
-  res.json({
-    userInput: req.body,
+  let userId = shortId.generate();
+
+  const exerciseUser = new ExerciseUser({
+    _id: userId,
+    username: req.body.username,
+  });
+
+  exerciseUser.save((err, doc) => {
+    if (err) return console.error(err);
+    res.json({
+      _id: exerciseUser._id,
+      username: exerciseUser.username,
+    });
   });
 });
 
