@@ -2,10 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-
 const cors = require("cors");
-
 const mongoose = require("mongoose");
+
 mongoose.connect(process.env.DB_URI || "mongodb://localhost/exercise-track", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -36,25 +35,21 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
-app.get("/api/exercise/new-user", (req, res) => {
-  res.json({ hello: "hi there..." });
-});
-
 app.post("/api/exercise/new-user", (req, res) => {
-  let uname = req.body.username;
-  Data.findOne({ username: uname }, (err, doc) => {
+  let username = req.body.username;
+  Data.findOne({ username: username }, (err, doc) => {
     if (doc) {
       res.json("Sorry - Username already taken...");
     } else {
-      let id = makeid();
+      let id = makeId();
       let data = new Data({
         _id: id,
-        username: uname,
+        username: username,
       });
       data.save(err, doc => {
-        if (err) return console.log("Error: ", err);
+        if (err) return console.error("Error: ", err);
         res.json({
-          username: uname,
+          username: username,
           _id: data._id,
         });
       });
@@ -64,7 +59,7 @@ app.post("/api/exercise/new-user", (req, res) => {
 
 app.get("/api/exercise/users", (req, res) => {
   Data.find({}, (err, doc) => {
-    if (err) return console.log("Error: ", err);
+    if (err) return console.error("Error: ", err);
     let responseArray = [];
     for (let entry in doc) {
       responseArray.push({
@@ -98,7 +93,7 @@ app.post("/api/exercise/add", (req, res) => {
     input.userId,
     { $push: { exercise: exerciseInstance } },
     (err, doc) => {
-      if (err) return console.log("Error: ", err);
+      if (err) return console.error("Error: ", err);
       res.json({
         username: doc.username,
         description: exerciseInstance.description,
@@ -119,7 +114,7 @@ app.get("/api/exercise/log", (req, res) => {
 
   if (!from && !to) {
     Data.findById(userId, (err, doc) => {
-      if (err) return console.log("Error finding ID: ", err);
+      if (err) return console.error("Error finding ID: ", err);
       if (doc == null) {
         res.send("Unknown UserId.. Plz try again!");
       } else {
@@ -150,7 +145,7 @@ app.get("/api/exercise/log", (req, res) => {
       .gt(from)
       .lt(to)
       .exec((err, doc) => {
-        if (err) return console.log("Error: ", err);
+        if (err) return console.error("Error: ", err);
         if (doc.length == 0) {
           res.send(
             "Error: Check User ID or No activities in this date range..."
@@ -207,7 +202,7 @@ const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
 });
 
-function makeid() {
+function makeId() {
   let randomText = "";
   let possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
