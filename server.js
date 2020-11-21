@@ -70,9 +70,7 @@ app.get("/api/exercise/users", async (req, res) => {
   const filter = {};
   const allExerciseUsers = await ExerciseUser.find(filter);
 
-  res.json({
-    allExerciseUsers: allExerciseUsers,
-  });
+  res.json(allExerciseUsers);
 });
 
 const listener = app.listen(port, () => {
