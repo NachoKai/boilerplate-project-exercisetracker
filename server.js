@@ -12,11 +12,21 @@ mongoose.connect(process.env.DB_URI || "mongodb://localhost/exercise-track", {
   useUnifiedTopology: true,
 });
 
-const ExerciseUser = mongoose.model(
-  "ExerciseUser",
+const NewUser = mongoose.model(
+  "NewUser",
   new mongoose.Schema({
     _id: String,
     username: String,
+  })
+);
+
+const NewExercise = mongoose.model(
+  "NewExercise",
+  new mongoose.Schema({
+    _id: String,
+    description: String,
+    duration: Number,
+    date: Date,
   })
 );
 
@@ -49,28 +59,51 @@ app.use((err, req, res, next) => {
   res.status(errCode).type("txt").send(errMessage);
 });
 
-app.post("/api/exercise/new-user/", (req, res) => {
-  let userId = shortId.generate();
+app.post("/api/exercise/new-user", (req, res) => {
+  const userId = shortId.generate();
+  const { username } = req.body;
 
-  const exerciseUser = new ExerciseUser({
+  const newUser = new NewUser({
     _id: userId,
-    username: req.body.username,
+    username,
   });
 
-  exerciseUser.save((err, doc) => {
+  newUser.save((err, doc) => {
     if (err) return console.error(err);
     res.json({
-      _id: exerciseUser._id,
-      username: exerciseUser.username,
+      _id: newUser._id,
+      username: newUser.username,
     });
   });
 });
 
 app.get("/api/exercise/users", async (req, res) => {
   const filter = {};
-  const allExerciseUsers = await ExerciseUser.find(filter);
+  const allUsers = await NewUser.find(filter);
+  res.json(allUsers);
+});
 
-  res.json(allExerciseUsers);
+app.post("/api/exercise/add", (req, res) => {
+  const { userId, username, description, duration, date } = req.body;
+
+  const dateObj = date === undefined ? new Date() : new Date(date);
+
+  const newExercise = new NewExercise({
+    _id: userId,
+    description,
+    duration,
+    date: dateObj.toString(),
+  });
+
+  newExercise.save((err, doc) => {
+    if (err) return console.error(err);
+    res.json({
+      _id: newExercise._id,
+      description: newExercise.description,
+      duration: newExercise.duration,
+      date: newExercise.date,
+    });
+  });
 });
 
 const listener = app.listen(port, () => {
