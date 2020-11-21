@@ -24,9 +24,10 @@ const NewExercise = mongoose.model(
   "NewExercise",
   new mongoose.Schema({
     _id: String,
+    username: String,
     description: String,
     duration: Number,
-    date: Date,
+    date: String,
   })
 );
 
@@ -84,27 +85,29 @@ app.get("/api/exercise/users", async (req, res) => {
 });
 
 app.post("/api/exercise/add", (req, res) => {
-  const { userId, username, description, duration, date } = req.body;
-
-  const dateObj = date === undefined ? new Date() : new Date(date);
-
+  const { userId, description, duration, date } = req.body;
+  console.log(req.body);
   const newExercise = new NewExercise({
     _id: userId,
+    // username: NewUser.find(user => user.id === id).username,
     description,
     duration,
-    date: dateObj.toString(),
+    date: date === "" ? new Date() : new Date(date),
   });
 
   newExercise.save((err, doc) => {
     if (err) return console.error(err);
     res.json({
       _id: newExercise._id,
+      // username: newExercise.username,
       description: newExercise.description,
       duration: newExercise.duration,
       date: newExercise.date,
     });
   });
 });
+
+app.get("/api/exercise/log", (req, res) => {});
 
 const listener = app.listen(port, () => {
   console.log("Your app is listening on port " + port);
