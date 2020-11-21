@@ -89,9 +89,9 @@ app.post("/api/exercise/add", async (req, res) => {
   const newExercise = new NewExercise({
     _id: userId,
     username: await allUsers.find(user => user._id === userId).username,
-    description,
-    duration,
     date: date === "" ? new Date() : new Date(date),
+    duration,
+    description,
   });
 
   newExercise.save((err, doc) => {
@@ -99,9 +99,9 @@ app.post("/api/exercise/add", async (req, res) => {
     res.json({
       _id: newExercise._id,
       username: newExercise.username,
-      description: newExercise.description,
-      duration: newExercise.duration,
       date: newExercise.date,
+      duration: newExercise.duration,
+      description: newExercise.description,
     });
   });
 });
